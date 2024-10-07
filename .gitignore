@@ -1,7 +1,9 @@
+
+
 ignore/
+ignore/	
+results/*.csv
 time/
-results/
-results/*.csv                         # ignore all csv files
 .Rproj.user/
 *.RData
 .Rhistory
