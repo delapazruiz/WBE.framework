@@ -1,0 +1,639 @@
+---
+title: "Reproducible results. Framework for wastewater-based epidemiology"
+subtitle: "Integrating modeling for Wastewater Surveillance"
+author: "*Néstor DelaPaz-Ruíz, Ellen-Wien Augustijn, Mahdi Farnaghi, Shaheen A. Abdulkareem, Raul Zurita-Milla*"
+abstract: "This quarto file documents the results of the mentioned research manuscript following open science and sustainalbe software practices"
+date: "2024-09-12"
+format:
+  html:
+    toc: true
+editor: visual
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+#Load libraries
+library(dplyr)
+library(tidyr)
+library(readr)
+library(tibble)
+library(ggplot2)
+library(lubridate)
+library(xts)
+
+library(sf)
+library(terra)
+library(tmap)    # for static and interactive maps
+library(gifski)
+library(tibbletime)
+#Head tail breaks
+library(classInt)
+library(plotly)
+library(dygraphs)
+library(knitr)
+library(DT)
+
+#Setup code required
+ver.tim <- 0
+
+#Import .shp (manholes, blocks) ----
+mholes_tbl = read_sf("data/manholes.snt.height.shp")
+blocks_tbl = read_sf("data/13m.loc.snt.2020.mz800.wgs84.shp")
+pipes_tbl = read_sf("data/pipes.snt.shp")
+households_tbl = read_sf("data/households.snt.wgs84.shp")
+ 
+#Load SMS-ABM Netlogo outcomes ----
+
+# Requirements for Figures 4,6,7,8,9.
+
+# Epidemic curve patterns
+source("code/dw.daily.infection.records/daily.infection.records.t0.4.mx4.R")
+
+#Load/pre-processing daily sewer map series
+source("code/sewer.map.series/sewer.infected.dw.mapseries.R")
+
+#Sewer (COVID) maps series daily, hourly, minutes variability
+source("code/sewer.map.series/sewer.infected.mapseries.daily.hourly.minutes.R")
+
+```
+
+**Affiliation:**
+
+`Department of Geo-Information Processing (GIP),  Faculty of Geo-Information Science and Earth Observation (ITC),  University of Twente,  Drienerlolaan 5, 7522 NB Enschede, The Netherlands`
+
+# Section 4. Results
+
+**Objective:** Our results demonstrate the implementation of the framework to support wastewater surveilliance plans by using the DDW (disease and wastewater model ). The DDW model simulates COVID-19 outbreak case study. The model outputs are represented in:
+
+1.  Figure 4. Epidemic curves of the disease spread and infected stool.
+2.  Figure 5. TSS loads map series at maintenance holes.
+3.  Figure 6. Early detection of COVID stool at maintenance holes.
+4.  Figure 7. Peak outbreak of infected stool events at maintenance holes.
+5.  Figure 8. Infected stool events from the population recovering from the outbreak.
+6.  Figure 9. Detection of stool events at the wastewater treatment plant.
+
+## 4.1. Modeled disease and wastewater
+
+### Figure 4. Epidemic curves
+
+Epidemic curves of the disease spread and infected stool. The red dots show the generated infected stool, considering that the population keeps producing infected stool after recovering. The green dots show infected stool without considering that stool is infected after the population has recovered. The blue dots show the count of the population infected. The vertical lines mark the early detection, peak, and recovery of the simulated COVID-19 outbreak.
+
+```{r}
+#| echo: false
+#| label: populationStool1
+#| fig-width: 10
+#| fig-height: 4
+#| fig-column: page-right
+#| fig-show: hold
+##| fig-cap: "A)"
+#| cap-location: margin
+
+
+# Combined infections: population + stool(x2)
+daily.infection.t0.4.mx4|> select(!c(r0,X6,X7,X8))|>
+  pivot_longer(!date.time)|>
+  rename(Infected.events = value,
+         Infected.Category = name)|>
+  mutate(Infected.Category = str_replace(
+    Infected.Category,
+    "Poo.during&after.infection", "Infected.Stool.Prevalence"),
+    Infected.Category = str_replace(
+      Infected.Category,
+      "Poo.infected.population", "Infected.Stool.No.Prevalence"),
+    Infected.Category = str_replace(
+      Infected.Category,
+      "Population", "Infected.Population"))|>
+  ggplot(aes(x = date.time,  y = Infected.events,
+             alpha = 0.75,
+             group = Infected.Category, 
+             color = Infected.Category)) +
+  geom_jitter()+
+  guides(alpha = "none")+
+  scale_x_datetime(
+    date_minor_breaks = "1 day", 
+    date_breaks = "2 days",
+    date_labels = "%Y-%m-%d")+
+  theme(axis.text.x = element_text(angle = 30, 
+                                   hjust = .5, 
+                                   vjust = 0.5)) +
+  ylim(0,320)+
+  theme(legend.position = 'bottom')+ 
+  geom_vline(xintercept = as.POSIXct("2022-03-21 12:00:00", tz='UTC'), linetype="dashed")+ 
+  geom_vline(xintercept = as.POSIXct("2022-03-27 12:00:00", tz='UTC'), linetype="dashed")+ 
+  geom_vline(xintercept = as.POSIXct("2022-04-01 12:00:00", tz='UTC'), linetype="dashed") +
+  annotate("text",x=as.POSIXct("2022-03-21 00:00:00", tz='UTC'), 
+           y=260, label="Early outbreak", angle=90,alpha = .5)+
+  annotate("text",x=as.POSIXct("2022-03-27 18:00:00", tz='UTC'), 
+           y=60, label="Outbreak peak", angle=90,alpha = .5)+
+  annotate("text",x=as.POSIXct("2022-04-02 12:00:00", tz='UTC'), 
+           y=260, label="Outbreak tail", angle=90,alpha = .5)
+
+```
+
+
+### Figure 5. 
+
+Go to the end of this document to find the figures.
+
+
+## 4.2	Modeled wastewater surveillance
+
+### Figure 6. Early detection of COVID stool at maintenance mholes. 
+
+Map series at different time ranges with 6 minutes resolution. a) Shows several dark purple points representing a clear presence of COVID stool events. b) Show a different time range where a) demonstrates to have more infected stool events than the time range from b). The rectangular area of the map series is adjusted based on the presence of points.
+
+
+#### Figure 6.a Mapserie at 09:00
+
+```{r}
+#| echo: false
+#| label: infected stool EARLY OUTBREAK.a six min res
+#| fig-column: page-right
+#| fig-height: 10
+#| fig-width: 9
+#| fig-show: hold
+##| fig-cap: "D)"
+#| cap-location: margin
+
+#Mapping infected stool events
+
+tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() + 
+  tm_fill(col = "#f0f0f0")+
+  tm_shape(pipes_tbl)+
+  tm_lines(col = "#bdbdbd")+
+  tm_shape(mholes06m_tbl.stool.earlyoutbreak.a) + 
+  tm_bubbles(size = 'stool.infected', 
+             col= 'stool.infected',
+             title.size= "Infected Stool(event)",
+             legend.size.show=FALSE,
+             legend.hist= TRUE,
+             legend.hist.title = 
+               "Histogram",
+             title.col= "Infected wastewater particles",
+             legend.col.is.portrait=TRUE,
+             #size.lim= c(1200,4000),
+             style="pretty",
+             #style.args = list(thr = 0.5),
+             palette="PuRd", 
+             border.col = '#bdbdbd') +
+  tm_facets(by = "date.time", ncol=4,
+            free.coords = TRUE,
+            free.scales.symbol.size=FALSE,
+            free.scales.symbol.col=FALSE,
+            scale.factor=5)+
+  tm_layout(main.title.position=c("left","top"),
+            main.title=
+              "Early outbreak, March 21, 9-10hrs, 06 min",
+            legend.outside.position= "right",
+            outer.margins=0,inner.margins=0,between.margin=0)
+```
+
+
+#### Figure 6.b Mapserie at 11:00
+
+```{r}
+#| echo: false
+#| label: infected stool EARLY OUTBREAK.b six min res
+#| fig-column: page-right
+#| fig-height: 10
+#| fig-width: 9
+#| fig-show: hold
+##| fig-cap: "D)"
+#| cap-location: margin
+
+#Mapping infected stool events
+
+tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() + 
+  tm_fill(col = "#f0f0f0")+
+  tm_shape(pipes_tbl)+
+  tm_lines(col = "#bdbdbd")+
+  tm_shape(mholes06m_tbl.stool.earlyoutbreak.b) + 
+  tm_bubbles(size = 'stool.infected', 
+             col= 'stool.infected',
+             title.size= "Infected Stool(event)",
+             legend.size.show=FALSE,
+             legend.hist= TRUE,
+             legend.hist.title = 
+               "Histogram",
+             title.col= "Infected wastewater particles",
+             legend.col.is.portrait=TRUE,
+             #size.lim= c(1200,4000),
+             style="pretty",
+             #style.args = list(thr = 0.5),
+             palette="PuRd", 
+             border.col = '#bdbdbd') +
+  tm_facets(by = "date.time", ncol=4,
+            free.coords = TRUE,
+            free.scales.symbol.size=FALSE,
+            free.scales.symbol.col=FALSE,
+            scale.factor=5)+
+  tm_layout(main.title.position=c("left","top"),
+            main.title=
+              "Early outbreak, March 21, 11-12hrs, 06 min",
+            legend.outside.position= "right",
+            outer.margins=0,inner.margins=0,between.margin=0)
+```
+
+### Figure 7. Outbreak Peak. 
+
+Map series with 6 minutes resolution showing a substantial increase in the number of infected stools at the outbreak peak.
+
+
+```{r}
+#| echo: false
+#| label: infected stool OUTBREAK PEAK six min res
+#| fig-column: page-right
+#| fig-height: 10
+#| fig-width: 9
+#| fig-show: hold
+##| fig-cap: "D)"
+#| cap-location: margin
+
+#Mapping infected stool events
+
+tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() + 
+  tm_fill(col = "#f0f0f0")+
+  tm_shape(pipes_tbl)+
+  tm_lines(col = "#bdbdbd")+
+  tm_shape(mholes06m_tbl.stool.outbreakpeak) + 
+  tm_bubbles(size = 'stool.infected', 
+             col= 'stool.infected',
+             title.size= "Infected Stool(event)",
+             legend.size.show=FALSE,
+             legend.hist= TRUE,
+             legend.hist.title = 
+               "Histogram",
+             title.col= "Infected wastewater particles",
+             legend.col.is.portrait=TRUE,
+             #size.lim= c(1200,4000),
+             style="pretty",
+             #style.args = list(thr = 0.5),
+             palette="PuRd", 
+             border.col = '#bdbdbd') +
+  tm_facets(by = "date.time", ncol=4,
+            free.coords = TRUE,
+            free.scales.symbol.size=FALSE,
+            free.scales.symbol.col=FALSE,
+            scale.factor=5)+
+  tm_layout(main.title.position=c("left","top"),
+            main.title=
+              "Outbreak Peak, March 27, 06 min",
+            legend.outside.position= "right",
+            outer.margins=0,inner.margins=0,between.margin=0)
+```
+
+
+
+### Figure 8. Outbreak Tail. Infected stool events from the population recovering from the outbreak. 
+
+Map series with 6 minutes resolution showing that even after the population is recovered, a substantial number of infected stools is still being produced.
+
+
+```{r}
+#| echo: false
+#| label: OUTBREAK TAIL infected stool six min res
+#| fig-column: page-right
+#| fig-height: 10
+#| fig-width: 9
+#| fig-show: hold
+##| fig-cap: "D)"
+#| cap-location: margin
+
+#Mapping infected stool events
+
+tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() + 
+  tm_fill(col = "#f0f0f0")+
+  tm_shape(pipes_tbl)+
+  tm_lines(col = "#bdbdbd")+
+  tm_shape(mholes06m_tbl.stool.outbreaktail) + 
+  tm_bubbles(size = 'stool.infected', 
+             col= 'stool.infected',
+             title.size= "Infected Stool(event)",
+             legend.size.show=FALSE,
+             legend.hist= TRUE,
+             legend.hist.title = 
+               "Histogram",
+             title.col= "Infected wastewater particles",
+             legend.col.is.portrait=TRUE,
+             #size.lim= c(1200,4000),
+             style="pretty",
+             #style.args = list(thr = 0.5),
+             palette="PuRd", 
+             border.col = '#bdbdbd') +
+  tm_facets(by = "date.time", ncol=4,
+            free.coords = TRUE,
+            free.scales.symbol.size=FALSE,
+            free.scales.symbol.col=FALSE,
+            scale.factor=5)+
+  tm_layout(main.title.position=c("left","top"),
+            main.title=
+              "Outbreak tail, April 1, 06 min",
+            legend.outside.position= "right",
+            outer.margins=0,inner.margins=0,between.margin=0)
+```
+
+
+### Figure 9. Wastewater treatment plant. Surveillance
+
+Represent a simulated wastewater surveillance sampling of infected stool events at the treatment plant.
+
+```{r}
+#| echo: false
+#| label: wwtp early outbreak
+#| fig-column: page-right
+#| fig-width: 9
+#| fig-height: 3
+#| fig-show: hold
+#| fig-cap: ""
+#| cap-location: margin
+
+
+# COVID early detection time series for a day -------------
+
+covid.mh460 <- manholes.snt.pol|> 
+  filter( manhole.id == 460&
+            virus=="Infected"&
+            event.typ=="poo"&
+            date.time <= as.POSIXct("2022-03-21 17:00:00", tz='UTC') &
+            date.time >= as.POSIXct("2022-03-21 07:00:00", tz='UTC'))|> 
+  mutate(inf.stool=1)
+
+covid.mh460$date.time <- align.time(
+  as.POSIXct(covid.mh460$date.time), 12 * 60) # temporal res in min=6
+
+covid.mh460 <- aggregate(
+  inf.stool ~format(as.POSIXct(covid.mh460$date.time), "%Y-%m-%d %H:%M")+
+    covid.mh460$manhole.id,
+  data= covid.mh460,
+  FUN = sum)%>% as_tibble()
+
+colnames(covid.mh460) <-c(
+  "date.time","manhole.id","stool.infected")
+
+covid.mh460<- covid.mh460[,-2]
+
+covid.mh460$date.time <- parse_date_time(
+  covid.mh460$date.time, orders = c("%Y-%m-%d %H:%M"))
+
+dyBarChart <- function(dygraph) {
+  dyPlotter(dygraph = dygraph,
+            name = "BarChart",
+            path = system.file("plotters/barchart.js",
+                               package = "dygraphs"))
+}
+
+dygraph(covid.mh460,
+        main = "Early outbreak detection, March 21",
+        ylab = "SARS-CoV-2 stool events") %>%
+  dyRangeSelector() %>%
+  dyFilledLine('stool.infected')|> #dyBarChart()|> 
+  dySeries('stool.infected', color='#756bb1')
+
+```
+
+```{r}
+#| echo: false
+#| label: wwtp outbreak peak 
+#| fig-column: page-right
+#| fig-width: 9
+#| fig-height: 3
+#| fig-show: hold
+#| fig-cap: ""
+#| cap-location: margin
+
+# COVID Peak time series for a day --------------------
+
+covid.mh460.peak <- manholes.snt.pol|> 
+    filter(manhole.id == 460&
+             event.typ=="poo"&
+             date.time <= as.POSIXct("2022-03-27 17:00:00", tz='UTC') &
+            date.time >= as.POSIXct("2022-03-27 07:00:00", tz='UTC'))
+
+covid.mh460.peak <- covid.mh460.peak|>
+    filter(virus == "Infected"|virus=="Recovered")|>
+  mutate(inf.stool=1)
+
+# covid.mh460.peak <- manholes.snt.pol|> 
+#   filter( manhole.id == 460&
+#             virus=="Infected"&
+#             event.typ=="poo"&
+#             date.time <= as.POSIXct("2022-03-27 17:00:00", tz='UTC') &
+#             date.time >= as.POSIXct("2022-03-27 07:00:00", tz='UTC'))|> 
+#   mutate(inf.stool=1)
+
+covid.mh460.peak$date.time <- align.time(
+  as.POSIXct(covid.mh460.peak$date.time), 12 * 60) # temporal res in min=6
+
+covid.mh460.peak <- aggregate(
+  inf.stool ~format(as.POSIXct(covid.mh460.peak$date.time), "%Y-%m-%d %H:%M")+
+    covid.mh460.peak$manhole.id,
+  data= covid.mh460.peak,
+  FUN = sum)%>% as_tibble()
+
+colnames(covid.mh460.peak) <-c(
+  "date.time","manhole.id","stool.infected")
+
+covid.mh460.peak<- covid.mh460.peak[,-2]
+
+covid.mh460.peak$date.time <- parse_date_time(
+  covid.mh460.peak$date.time, orders = c("%Y-%m-%d %H:%M"))
+
+dyBarChart <- function(dygraph) {
+  dyPlotter(dygraph = dygraph,
+            name = "BarChart",
+            path = system.file("plotters/barchart.js",
+                               package = "dygraphs"))
+}
+
+dygraph(covid.mh460.peak,
+        main = "Outbreak peak, March 27",
+        ylab = "SARS-CoV-2 stool events") %>%
+  dyRangeSelector() %>%
+  dyFilledLine('stool.infected')|> #dyBarChart()|> 
+  dySeries('stool.infected', color='#756bb1')
+
+```
+
+```{r}
+#| echo: false
+#| label: wwtp outbreak tail
+#| fig-column: page-right
+#| fig-width: 9
+#| fig-height: 3
+#| fig-show: hold
+#| fig-cap: ""
+#| cap-location: margin
+
+# COVID Peak time series for a day --------------------
+
+covid.mh460.peak2 <- manholes.snt.pol|> 
+    filter(manhole.id == 460&
+             event.typ=="poo"&
+             date.time <= as.POSIXct("2022-04-01 17:00:00", tz='UTC') &
+            date.time >= as.POSIXct("2022-04-01 07:00:00", tz='UTC'))
+
+covid.mh460.peak2 <- covid.mh460.peak2|>
+    filter(virus == "Infected"|virus=="Recovered")|>
+  mutate(inf.stool=1)
+
+covid.mh460.peak2$date.time <- align.time(
+  as.POSIXct(covid.mh460.peak2$date.time), 12 * 60) # temporal res in min=6
+
+covid.mh460.peak2 <- aggregate(
+  inf.stool ~format(as.POSIXct(covid.mh460.peak2$date.time), "%Y-%m-%d %H:%M")+
+    covid.mh460.peak2$manhole.id,
+  data= covid.mh460.peak2,
+  FUN = sum)%>% as_tibble()
+
+colnames(covid.mh460.peak2) <-c(
+  "date.time","manhole.id","stool.infected")
+
+covid.mh460.peak2<- covid.mh460.peak2[,-2]
+
+covid.mh460.peak2$date.time <- parse_date_time(
+  covid.mh460.peak2$date.time, orders = c("%Y-%m-%d %H:%M"))
+
+covid.mh460.peak3 <- manholes.snt.pol|>
+  filter( manhole.id == 460&
+            virus=="Infected"&
+            event.typ=="poo"&
+            date.time <= as.POSIXct("2022-04-01 17:00:00", tz='UTC') &
+            date.time >= as.POSIXct("2022-04-01 07:00:00", tz='UTC'))|>
+  mutate(inf.stool=1)
+
+covid.mh460.peak3$date.time <- align.time(
+  as.POSIXct(covid.mh460.peak3$date.time), 12 * 60) # temporal res in min=6
+
+covid.mh460.peak3 <- aggregate(
+  inf.stool ~format(as.POSIXct(covid.mh460.peak3$date.time), "%Y-%m-%d %H:%M")+
+    covid.mh460.peak3$manhole.id,
+  data= covid.mh460.peak3,
+  FUN = sum)%>% as_tibble()
+
+colnames(covid.mh460.peak3) <-c(
+  "date.time","manhole.id","stool.infected")
+
+covid.mh460.peak3<- covid.mh460.peak3[,-2]
+
+covid.mh460.peak3$date.time <- parse_date_time(
+  covid.mh460.peak3$date.time, orders = c("%Y-%m-%d %H:%M"))
+
+ # covid.mh460.peak2
+ # covid.mh460.peak3
+
+covid.mh460.peak4<- covid.mh460.peak3 |> left_join(covid.mh460.peak2,by = "date.time")
+
+colnames(covid.mh460.peak4) <-c(
+  "date.time","Infected","Infected+recovered")
+
+# dyMultiColumn <- function(dygraph) {
+#   dyPlotter(dygraph = dygraph,
+#             name = "MultiColumn",
+#             path = system.file("plotters/multicolumn.js",
+#                                package = "dygraphs"))
+# }
+
+dygraph(covid.mh460.peak4,
+        main = "Outbreak tail, April 1",
+        ylab = "SARS-CoV-2 stool events") %>%
+  dyRangeSelector() %>% #dyMultiColumn()|> 
+  dyFilledLine('Infected')|> #dyBarChart()|> 
+  dyFilledLine('Infected+recovered')|>
+  dySeries('Infected', color='#756bb1')|> 
+  dySeries('Infected+recovered', color='#31a354')
+
+```
+
+
+### Figure 5. TSS loads map series at maintenance holes. 
+
+TSS loads map series at maintenance holes. The map shows TSS dynamics generated every 12 minutes from 9:00 to 12:00 hours. a) Shows TSS that comes from the combination of water appliances, which can be observed at normal intervals. b) Only shows dots at maintenance holes that have TSS values higher than 1200 mg/l with a head-tail interval that focuses on disaggregating the highest TSS values. The head-tails intervals facilitate observing the most likely events with higher concertation or amounts of stools. The symbol histogram counts the times that each color is in the respective map series.
+
+Simulated events at the locality level from 25 simulations.
+
+```{r}
+#| echo: false
+#| label: all TSS loads
+#| fig-column: page-right
+#| fig-width: 9
+#| fig-height: 8
+#| fig-show: hold
+##| fig-cap: "A&B)"
+#| cap-location: margin
+
+#Requirements for TSS, Figure 5.
+
+#Load/pre-processing daily sewer map series
+source("code/sewer.map.series/sewer.tss.load.dw.mapseries.R")
+
+#Sewer (TSS) maps series daily, hourly, minutes variability
+source("code/sewer.map.series/sewer.tss.mapseries.daily.hourly.minutes.R")
+
+#Mapping TSS normalized loads
+
+tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() + 
+  tm_fill(col = "#f0f0f0")+
+  tm_shape(pipes_tbl)+
+  tm_lines(col = "#bdbdbd")+
+  tm_shape(mholes12m_tbl_f.tss) + 
+  tm_bubbles(size = 'tss.mgl', 
+          col= 'tss.mgl',
+          title.size= "TSS(mg/l)",
+          legend.size.show=FALSE,
+          legend.hist= TRUE,
+          legend.hist.title = 
+            "Histogram",
+          title.col= "TSS(mg/l)",
+          legend.col.is.portrait=TRUE,
+          #size.lim= c(1200,4000),
+          style="pretty",
+          #style.args = list(thr = 0.5),
+          palette="YlOrBr", 
+          border.col = '#bdbdbd') +
+  tm_facets(by = "date.time", ncol=5,
+            free.coords = TRUE,
+            free.scales.symbol.size=FALSE,
+            free.scales.symbol.col=FALSE,
+            scale.factor=5)+
+  tm_layout(main.title.position=c("left","top"),
+main.title=
+  "Wastewater dynamics: TSS from all water appliances",
+    #legend.outside.position= "right",
+outer.margins=0,inner.margins=0,between.margin=0)
+
+
+#Mapping TSS loads higher than 1200
+
+tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() + 
+  tm_fill(col = "#f0f0f0")+
+  tm_shape(pipes_tbl)+
+  tm_lines(col = "#bdbdbd")+
+  tm_shape(mholes12m_tbl_f.tss) + 
+  tm_bubbles(size = 'tss.mgl', 
+          col= 'tss.mgl',
+          title.size= "TSS(mg/l)",
+          legend.size.show=FALSE,
+          legend.hist= TRUE,
+          legend.hist.title = 
+            "Histogram",
+          title.col= "TSS(mg/l)",
+          legend.col.is.portrait=TRUE,
+          size.lim= c(1300,6000),
+          style="headtails",
+          style.args = list(thr = 0.6),
+          palette="Oranges", 
+          border.col = '#bdbdbd') +
+  tm_facets(by = "date.time", ncol=5,
+            free.coords = TRUE,
+            free.scales.symbol.size=FALSE,
+            free.scales.symbol.col=FALSE,
+            scale.factor=5)+
+  tm_layout(main.title.position=c("left","top"),
+main.title=
+  "Wastewater dynamics: TSS>1300 linked to stool ",
+    #legend.outside.position= "right",
+outer.margins=0,inner.margins=0,between.margin=0)
+
+```
+
