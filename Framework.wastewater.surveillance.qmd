@@ -48,6 +48,7 @@ households_tbl = read_sf("data/households.snt.wgs84.shp")
 # Requirements for Figures 4,6,7,8,9.
 
 # Epidemic curve patterns
+
 source("code/dw.daily.infection.records/daily.infection.records.t0.4.mx4.R")
 
 #Load/pre-processing daily sewer map series
@@ -637,3 +638,30 @@ outer.margins=0,inner.margins=0,between.margin=0)
 
 ```
 
+```{r}
+#| echo: false
+#| label: dependencies
+#| fig-column: page-right
+#| fig-width: 9
+#| fig-height: 8
+#| fig-show: hold
+##| fig-cap: "A&B)"
+#| cap-location: margin
+
+sessionInfo()
+
+```
+```{r}
+#| echo: false
+#| label: renvironment
+#| fig-column: page-right
+#| fig-width: 9
+#| fig-height: 8
+#| fig-show: hold
+##| fig-cap: "A&B)"
+#| cap-location: margin
+
+# library(renv)
+# renv::init()
+
+```

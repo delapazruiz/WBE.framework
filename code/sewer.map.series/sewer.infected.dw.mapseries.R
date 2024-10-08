@@ -182,13 +182,13 @@ colnames(manholes.snt)
 blocks.snt$event.typ %>%unique()
 manholes.snt$event.typ %>%unique()
 
-remove(
-  pee.snt,
-  poo.snt,
-  kitchen.snt,
-  shower.snt,
-  washingmachine.snt,
-  washbasin.snt)
+remove(poo.snt)
+#   pee.snt,
+#    kitchen.snt,
+#    shower.snt,
+#    washingmachine.snt,
+#    washbasin.snt
+   
 
 #Define tag version base on temporal execution of parametrization
 ver.tim <- Sys.time() %>% gsub(":",".",.) %>% 
@@ -210,7 +210,7 @@ blocks.snt.pol <- blocks.snt
 # manholes.snt.pol$Age %>%unique()
 
 #remove un-used var
-remove(dt.val,blocks.snt,manholes.snt,indiv_mipfp.id)
+remove(blocks.snt,manholes.snt,indiv_mipfp.id)
 
 # Results from DW parametrization
 # blocks.snt.pol
