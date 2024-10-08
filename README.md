@@ -65,7 +65,11 @@ Steps for a quick reproduction:
 1.  In a new folder, execute the following commands in git bash:
 
 ``` bash
-git clone 
+git clone https://github.com/delapazruiz/ddw.framework.git
+```
+
+``` bash
+cd ddw.framework/
 ```
 
 ``` bash
