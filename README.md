@@ -4,9 +4,9 @@
 *Integrating modeling for Wastewater Surveillance* 
 ================
 
-Pre-print: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13734819.svg)](https://doi.org/10.5281/zenodo.13734819)
+Pre-print: (Add zenodo DOI)
 
-Repository: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13734543.svg)](https://doi.org/10.5281/zenodo.13734543)
+Repository: (Add zenodo DOI)
 
 Néstor DelaPaz-Ruíz, Ellen-Wien Augustijn, Mahdi Farnaghi, Shaheen A. Abdulkareem, Raul Zurita-Milla. September, 2024
 
