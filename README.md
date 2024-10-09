@@ -10,6 +10,10 @@ Affiliation: Department of Geo-Information Process (GIP), Faculty of Geo-Informa
 
 ## About
 
+Manuscript pre-print: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13734819.svg)](https://doi.org/10.5281/zenodo.13734819)
+
+Released repository: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13734819.svg)](https://doi.org/10.5281/zenodo.13734819) 
+
 This repository provides access to the materials (code-data), software-environments (NetLogo, Rstudio, Docker containers), and the steps for reproducing the results from the publication: *Framework for wastewater-based epidemiology: Integrating modeling for Wastewater Surveillance*.
 
 The information below guides you to execute two NetLogo simulations. The main outputs are the figures representing the results of the mentioned publication.
