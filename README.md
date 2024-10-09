@@ -4,15 +4,15 @@
 *Integrating modeling for Wastewater Surveillance* 
 ================
 
+Pre-print: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13734819.svg)](https://doi.org/10.5281/zenodo.13734819)
+
+Repository: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13734543.svg)](https://doi.org/10.5281/zenodo.13734543)
+
 Néstor DelaPaz-Ruíz, Ellen-Wien Augustijn, Mahdi Farnaghi, Shaheen A. Abdulkareem, Raul Zurita-Milla. September, 2024
 
 Affiliation: Department of Geo-Information Process (GIP), Faculty of Geo-Information Science and Earth Observation (ITC), University of Twente, Drienerlolaan 5, 7522 NB Enschede, The Netherlands
 
 ## About
-
-Manuscript pre-print: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13734819.svg)](https://doi.org/10.5281/zenodo.13734819)
-
-Released repository: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13734819.svg)](https://doi.org/10.5281/zenodo.13734819) 
 
 This repository provides access to the materials (code-data), software-environments (NetLogo, Rstudio, Docker containers), and the steps for reproducing the results from the publication: *Framework for wastewater-based epidemiology: Integrating modeling for Wastewater Surveillance*.
 
