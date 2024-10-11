@@ -48,7 +48,6 @@ households_tbl = read_sf("data/households.snt.wgs84.shp")
 # Requirements for Figures 4,6,7,8,9.
 
 # Epidemic curve patterns
-
 source("code/dw.daily.infection.records/daily.infection.records.t0.4.mx4.R")
 
 #Load/pre-processing daily sewer map series
@@ -56,6 +55,11 @@ source("code/sewer.map.series/sewer.infected.dw.mapseries.R")
 
 #Sewer (COVID) maps series daily, hourly, minutes variability
 source("code/sewer.map.series/sewer.infected.mapseries.daily.hourly.minutes.R")
+
+#Time series at WWTP and maintenance holes
+source("code/dw.daily.infection.records/figure9.timeseries.earlydetection.R")
+source("code/dw.daily.infection.records/figure9.timeseries.outbreak.peak.R")
+source("code/dw.daily.infection.records/figure9.timeseries.outbreak.tail.R")
 
 ```
 
@@ -335,13 +339,15 @@ tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() +
 ```
 
 
-### Figure 9. Surveillance: WWTP and Maintinance hole
+### Figure 9. Surveillance: Mh.258+WWTP
 
 Represent a simulated wastewater surveillance sampling of infected stool events at the treatment plant and maintinance hole.
 
+#### a) Early outbreak: WWTP and Mh.258, March 21
+
 ```{r}
 #| echo: false
-#| label: wwtp early outbreak
+#| label: wwtp.mh258 early outbreak
 #| fig-column: page-right
 #| fig-width: 9
 #| fig-height: 3
@@ -349,53 +355,20 @@ Represent a simulated wastewater surveillance sampling of infected stool events 
 #| fig-cap: ""
 #| cap-location: margin
 
-
-# COVID early detection time series for a day -------------
-
-covid.mh460 <- manholes.snt.pol|> 
-  filter( manhole.id == 460&
-            virus=="Infected"&
-            event.typ=="poo"&
-            date.time <= as.POSIXct("2022-03-21 17:00:00", tz='UTC') &
-            date.time >= as.POSIXct("2022-03-21 07:00:00", tz='UTC'))|> 
-  mutate(inf.stool=1)
-
-covid.mh460$date.time <- align.time(
-  as.POSIXct(covid.mh460$date.time), 12 * 60) # temporal res in min=6
-
-covid.mh460 <- aggregate(
-  inf.stool ~format(as.POSIXct(covid.mh460$date.time), "%Y-%m-%d %H:%M")+
-    covid.mh460$manhole.id,
-  data= covid.mh460,
-  FUN = sum)%>% as_tibble()
-
-colnames(covid.mh460) <-c(
-  "date.time","manhole.id","stool.infected")
-
-covid.mh460<- covid.mh460[,-2]
-
-covid.mh460$date.time <- parse_date_time(
-  covid.mh460$date.time, orders = c("%Y-%m-%d %H:%M"))
-
-dyBarChart <- function(dygraph) {
-  dyPlotter(dygraph = dygraph,
-            name = "BarChart",
-            path = system.file("plotters/barchart.js",
-                               package = "dygraphs"))
-}
-
-dygraph(covid.mh460,
-        main = "WWTP: Early outbreak, March 21",
-        ylab = "SARS-CoV-2 stool events") %>%#dyRangeSelector() %>%
-  dyFilledLine('stool.infected')|> # dyBarChart()|>
-  dySeries('stool.infected', color='#756bb1')
-
+dygraph(covid.wwtp.mh258.early,
+        #main = "WWTP and Mh.258: Early Outbreak, March 21",
+        ylab = "SARS-CoV-2 stool events") %>% 
+  dyMultiColumn()|> 
+  dySeries('Mh.258', color='#9e9ac8')|> 
+  dySeries('WWTP', color='#3f007d')
+  
 ```
 
+#### b) Outbreak peak: WWTP and Mh.258, March 27 
 
 ```{r}
 #| echo: false
-#| label: mh258 early outbreak
+#| label: wwtp.mh258 outbreak peak
 #| fig-column: page-right
 #| fig-width: 9
 #| fig-height: 3
@@ -403,53 +376,22 @@ dygraph(covid.mh460,
 #| fig-cap: ""
 #| cap-location: margin
 
-
-# COVID early detection time series for a day -------------
-
-covid.mh258 <- manholes.snt.pol|> 
-  filter( manhole.id == 258&
-            virus=="Infected"&
-            event.typ=="poo"&
-            date.time <= as.POSIXct("2022-03-21 17:00:00", tz='UTC') &
-            date.time >= as.POSIXct("2022-03-21 07:00:00", tz='UTC'))|> 
-  mutate(inf.stool=1)
-
-covid.mh258$date.time <- align.time(
-  as.POSIXct(covid.mh258$date.time), 12 * 60) # temporal res in min=6
-
-covid.mh258 <- aggregate(
-  inf.stool ~format(as.POSIXct(covid.mh258$date.time), "%Y-%m-%d %H:%M")+
-    covid.mh258$manhole.id,
-  data= covid.mh258,
-  FUN = sum)%>% as_tibble()
-
-colnames(covid.mh258) <-c(
-  "date.time","manhole.id","stool.infected")
-
-covid.mh258<- covid.mh258[,-2]
-
-covid.mh258$date.time <- parse_date_time(
-  covid.mh258$date.time, orders = c("%Y-%m-%d %H:%M"))
-
-dyBarChart <- function(dygraph) {
-  dyPlotter(dygraph = dygraph,
-            name = "BarChart",
-            path = system.file("plotters/barchart.js",
-                               package = "dygraphs"))
-}
-
-dygraph(covid.mh258,
-        main = "Mh 258: Early outbreak, March 21",
-        ylab = "SARS-CoV-2 stool events") %>%#  dyRangeSelector() %>%
-  dyFilledLine('stool.infected')|> #dyBarChart()|>
-  dySeries('stool.infected', color='#756bb1')
-
+# Outbreak peak: Mh+WWTP ------------
+dygraph(covid.wwtp.mh258.peak,
+        #main = "WWTP and Mh.258: Outbreak peak, March 27",
+        ylab = "SARS-CoV-2 stool events") %>% 
+  dyMultiColumn()|> 
+  dySeries('Mh.258', color='#9e9ac8')|> 
+  dySeries('WWTP', color='#3f007d')
+  
 ```
 
 
+#### c) Outbreak tail: WWTP and Mh.258, April 1
+
 ```{r}
 #| echo: false
-#| label: wwtp outbreak peak 
+#| label: wwtp.mh258 outbreak tail
 #| fig-column: page-right
 #| fig-width: 9
 #| fig-height: 3
@@ -457,120 +399,18 @@ dygraph(covid.mh258,
 #| fig-cap: ""
 #| cap-location: margin
 
-# COVID Peak time series for a day --------------------
+# Outbreak Tail: Mh+WWTP ------------
 
-covid.mh460.peak <- manholes.snt.pol|> 
-    filter(manhole.id == 460&
-             event.typ=="poo"&
-             date.time <= as.POSIXct("2022-03-27 17:00:00", tz='UTC') &
-            date.time >= as.POSIXct("2022-03-27 07:00:00", tz='UTC'))
-
-covid.mh460.peak <- covid.mh460.peak|>
-    filter(virus == "Infected"|virus=="Recovered")|>
-  mutate(inf.stool=1)
-
-# covid.mh460.peak <- manholes.snt.pol|> 
-#   filter( manhole.id == 460&
-#             virus=="Infected"&
-#             event.typ=="poo"&
-#             date.time <= as.POSIXct("2022-03-27 17:00:00", tz='UTC') &
-#             date.time >= as.POSIXct("2022-03-27 07:00:00", tz='UTC'))|> 
-#   mutate(inf.stool=1)
-
-covid.mh460.peak$date.time <- align.time(
-  as.POSIXct(covid.mh460.peak$date.time), 12 * 60) # temporal res in min=6
-
-covid.mh460.peak <- aggregate(
-  inf.stool ~format(as.POSIXct(covid.mh460.peak$date.time), "%Y-%m-%d %H:%M")+
-    covid.mh460.peak$manhole.id,
-  data= covid.mh460.peak,
-  FUN = sum)%>% as_tibble()
-
-colnames(covid.mh460.peak) <-c(
-  "date.time","manhole.id","stool.infected")
-
-covid.mh460.peak<- covid.mh460.peak[,-2]
-
-covid.mh460.peak$date.time <- parse_date_time(
-  covid.mh460.peak$date.time, orders = c("%Y-%m-%d %H:%M"))
-
-dyBarChart <- function(dygraph) {
-  dyPlotter(dygraph = dygraph,
-            name = "BarChart",
-            path = system.file("plotters/barchart.js",
-                               package = "dygraphs"))
-}
-
-dygraph(covid.mh460.peak,
-        main = "WWTP: Outbreak peak, March 27",
-        ylab = "SARS-CoV-2 stool events") %>%#dyRangeSelector() %>%
-  dyFilledLine('stool.infected')|>#dyBarChart()|>
-  dySeries('stool.infected', color='#756bb1')
-
+dygraph(covid.wwtp.mh258.tail,
+        #main = "WWTP and Mh.258: Outbreak tail, April 1",
+        ylab = "SARS-CoV-2 stool events") %>% 
+  dyMultiColumn()|> 
+  dySeries('Mh.258', color='#9e9ac8')|> 
+  dySeries('WWTP', color='#3f007d')
+  
 ```
 
-```{r}
-#| echo: false
-#| label: mh258 outbreak peak 
-#| fig-column: page-right
-#| fig-width: 9
-#| fig-height: 3
-#| fig-show: hold
-#| fig-cap: ""
-#| cap-location: margin
-
-# COVID Peak time series for a day --------------------
-
-covid.mh258.peak <- manholes.snt.pol|> 
-    filter(manhole.id == 258&
-             event.typ=="poo"&
-             date.time <= as.POSIXct("2022-03-27 17:00:00", tz='UTC') &
-            date.time >= as.POSIXct("2022-03-27 07:00:00", tz='UTC'))
-
-covid.mh258.peak <- covid.mh258.peak|>
-    filter(virus == "Infected"|virus=="Recovered")|>
-  mutate(inf.stool=1)
-
-# covid.mh258.peak <- manholes.snt.pol|> 
-#   filter( manhole.id == 258&
-#             virus=="Infected"&
-#             event.typ=="poo"&
-#             date.time <= as.POSIXct("2022-03-27 17:00:00", tz='UTC') &
-#             date.time >= as.POSIXct("2022-03-27 07:00:00", tz='UTC'))|> 
-#   mutate(inf.stool=1)
-
-covid.mh258.peak$date.time <- align.time(
-  as.POSIXct(covid.mh258.peak$date.time), 12 * 60) # temporal res in min=6
-
-covid.mh258.peak <- aggregate(
-  inf.stool ~format(as.POSIXct(covid.mh258.peak$date.time), "%Y-%m-%d %H:%M")+
-    covid.mh258.peak$manhole.id,
-  data= covid.mh258.peak,
-  FUN = sum)%>% as_tibble()
-
-colnames(covid.mh258.peak) <-c(
-  "date.time","manhole.id","stool.infected")
-
-covid.mh258.peak<- covid.mh258.peak[,-2]
-
-covid.mh258.peak$date.time <- parse_date_time(
-  covid.mh258.peak$date.time, orders = c("%Y-%m-%d %H:%M"))
-
-dyBarChart <- function(dygraph) {
-  dyPlotter(dygraph = dygraph,
-            name = "BarChart",
-            path = system.file("plotters/barchart.js",
-                               package = "dygraphs"))
-}
-
-dygraph(covid.mh258.peak,
-        main = "Mh 258: Outbreak peak, March 27",
-        ylab = "SARS-CoV-2 stool events") %>%#  dyRangeSelector() %>%
-  dyFilledLine('stool.infected')|> #dyBarChart()|> 
-  dySeries('stool.infected', color='#756bb1')
-
-```
-
+#### d) Outbreak tail: WWTP with and witout SARS-Cov-2 prevalence, April 1
 
 ```{r}
 #| echo: false
@@ -582,84 +422,19 @@ dygraph(covid.mh258.peak,
 #| fig-cap: ""
 #| cap-location: margin
 
-# COVID Peak time series for a day --------------------
+# WWTP COVID tail time series for a day --------------------
 
-covid.mh460.peak2 <- manholes.snt.pol|> 
-    filter(manhole.id == 460&
-             event.typ=="poo"&
-             date.time <= as.POSIXct("2022-04-01 17:00:00", tz='UTC') &
-            date.time >= as.POSIXct("2022-04-01 07:00:00", tz='UTC'))
-
-covid.mh460.peak2 <- covid.mh460.peak2|>
-    filter(virus == "Infected"|virus=="Recovered")|>
-  mutate(inf.stool=1)
-
-covid.mh460.peak2$date.time <- align.time(
-  as.POSIXct(covid.mh460.peak2$date.time), 12 * 60) # temporal res in min=6
-
-covid.mh460.peak2 <- aggregate(
-  inf.stool ~format(as.POSIXct(covid.mh460.peak2$date.time), "%Y-%m-%d %H:%M")+
-    covid.mh460.peak2$manhole.id,
-  data= covid.mh460.peak2,
-  FUN = sum)%>% as_tibble()
-
-colnames(covid.mh460.peak2) <-c(
-  "date.time","manhole.id","stool.infected")
-
-covid.mh460.peak2<- covid.mh460.peak2[,-2]
-
-covid.mh460.peak2$date.time <- parse_date_time(
-  covid.mh460.peak2$date.time, orders = c("%Y-%m-%d %H:%M"))
-
-covid.mh460.peak3 <- manholes.snt.pol|>
-  filter( manhole.id == 460&
-            virus=="Infected"&
-            event.typ=="poo"&
-            date.time <= as.POSIXct("2022-04-01 17:00:00", tz='UTC') &
-            date.time >= as.POSIXct("2022-04-01 07:00:00", tz='UTC'))|>
-  mutate(inf.stool=1)
-
-covid.mh460.peak3$date.time <- align.time(
-  as.POSIXct(covid.mh460.peak3$date.time), 12 * 60) # temporal res in min=6
-
-covid.mh460.peak3 <- aggregate(
-  inf.stool ~format(as.POSIXct(covid.mh460.peak3$date.time), "%Y-%m-%d %H:%M")+
-    covid.mh460.peak3$manhole.id,
-  data= covid.mh460.peak3,
-  FUN = sum)%>% as_tibble()
-
-colnames(covid.mh460.peak3) <-c(
-  "date.time","manhole.id","stool.infected")
-
-covid.mh460.peak3<- covid.mh460.peak3[,-2]
-
-covid.mh460.peak3$date.time <- parse_date_time(
-  covid.mh460.peak3$date.time, orders = c("%Y-%m-%d %H:%M"))
-
- # covid.mh460.peak2
- # covid.mh460.peak3
-
-covid.mh460.peak4<- covid.mh460.peak3 |> left_join(covid.mh460.peak2,by = "date.time")
-
-colnames(covid.mh460.peak4) <-c(
-  "date.time","Infected","Infected+recovered")
-
-# dyMultiColumn <- function(dygraph) {
-#   dyPlotter(dygraph = dygraph,
-#             name = "MultiColumn",
-#             path = system.file("plotters/multicolumn.js",
-#                                package = "dygraphs"))
-# }
-
-dygraph(covid.mh460.peak4,
-        main = "WWTP: Outbreak tail, April 1",
+dygraph(covid.mh460.tail.yes.no.prevalence,
+        #main = "WWTP: Outbreak tail, April 1",
         ylab = "SARS-CoV-2 stool events") %>%#dyRangeSelector() %>% #dyMultiColumn()|> 
   dyFilledLine('Infected')|> #dyBarChart()|> 
   dyFilledLine('Infected+recovered')|>
-  dySeries('Infected', color='#756bb1')|> 
-  dySeries('Infected+recovered', color='#31a354')
+  dySeries('Infected', color='#00441b')|> 
+  dySeries('Infected+recovered', color='#3f007d')
 
 ```
+
+#### e) Outbreak tail: Mh.258 with and witout SARS-Cov-2 prevalence, April 1
 
 ```{r}
 #| echo: false
@@ -671,87 +446,19 @@ dygraph(covid.mh460.peak4,
 #| fig-cap: ""
 #| cap-location: margin
 
-# COVID Peak time series for a day --------------------
+# M.h.258 COVID Peak time series for a day --------------------
 
-covid.mh258.peak2 <- manholes.snt.pol|> 
-    filter(manhole.id == 258&
-             event.typ=="poo"&
-             date.time <= as.POSIXct("2022-04-01 17:00:00", tz='UTC') &
-            date.time >= as.POSIXct("2022-04-01 07:00:00", tz='UTC'))
-
-covid.mh258.peak2 <- covid.mh258.peak2|>
-    filter(virus == "Infected"|virus=="Recovered")|>
-  mutate(inf.stool=1)
-
-covid.mh258.peak2$date.time <- align.time(
-  as.POSIXct(covid.mh258.peak2$date.time), 12 * 60) # temporal res in min=6
-
-covid.mh258.peak2 <- aggregate(
-  inf.stool ~format(as.POSIXct(covid.mh258.peak2$date.time), "%Y-%m-%d %H:%M")+
-    covid.mh258.peak2$manhole.id,
-  data= covid.mh258.peak2,
-  FUN = sum)%>% as_tibble()
-
-colnames(covid.mh258.peak2) <-c(
-  "date.time","manhole.id","stool.infected")
-
-covid.mh258.peak2<- covid.mh258.peak2[,-2]
-
-covid.mh258.peak2$date.time <- parse_date_time(
-  covid.mh258.peak2$date.time, orders = c("%Y-%m-%d %H:%M"))
-
-covid.mh258.peak3 <- manholes.snt.pol|>
-  filter( manhole.id == 258&
-            virus=="Infected"&
-            event.typ=="poo"&
-            date.time <= as.POSIXct("2022-04-01 17:00:00", tz='UTC') &
-            date.time >= as.POSIXct("2022-04-01 07:00:00", tz='UTC'))|>
-  mutate(inf.stool=1)
-
-covid.mh258.peak3$date.time <- align.time(
-  as.POSIXct(covid.mh258.peak3$date.time), 12 * 60) # temporal res in min=6
-
-covid.mh258.peak3 <- aggregate(
-  inf.stool ~format(as.POSIXct(covid.mh258.peak3$date.time), "%Y-%m-%d %H:%M")+
-    covid.mh258.peak3$manhole.id,
-  data= covid.mh258.peak3,
-  FUN = sum)%>% as_tibble()
-
-colnames(covid.mh258.peak3) <-c(
-  "date.time","manhole.id","stool.infected")
-
-covid.mh258.peak3<- covid.mh258.peak3[,-2]
-
-covid.mh258.peak3$date.time <- parse_date_time(
-  covid.mh258.peak3$date.time, orders = c("%Y-%m-%d %H:%M"))
-
- # covid.mh258.peak2
- # covid.mh258.peak3
-
-covid.mh258.peak4<- covid.mh258.peak3 |> left_join(covid.mh258.peak2,by = "date.time")
-
-colnames(covid.mh258.peak4) <-c(
-  "date.time","Infected","Infected+recovered")
-
-# dyMultiColumn <- function(dygraph) {
-#   dyPlotter(dygraph = dygraph,
-#             name = "MultiColumn",
-#             path = system.file("plotters/multicolumn.js",
-#                                package = "dygraphs"))
-# }
-
-dygraph(covid.mh258.peak4,
-        main = "Mh 258: Outbreak tail, April 1",
+dygraph(covid.mh258.tail.yes.no.prevalence,
+        #main = "Mh.258: Outbreak tail, April 1",
         ylab = "SARS-CoV-2 stool events") %>%#  dyRangeSelector() %>% #dyMultiColumn()|> 
   dyFilledLine('Infected')|> #dyBarChart()|> 
   dyFilledLine('Infected+recovered')|>
-  dySeries('Infected', color='#756bb1')|> 
-  dySeries('Infected+recovered', color='#31a354')
+  dySeries('Infected', color='#74c476')|> 
+  dySeries('Infected+recovered', color='#9e9ac8')
 
 ```
 
-
-### Figure 5. TSS loads map series at maintenance holes. 
+### Figure 5. TSS loads map series at maintenance holes.
 
 TSS loads map series at maintenance holes. The map shows TSS dynamics generated every 12 minutes from 9:00 to 12:00 hours. a) Shows TSS that comes from the combination of water appliances, which can be observed at normal intervals. b) Only shows dots at maintenance holes that have TSS values higher than 1200 mg/l with a head-tail interval that focuses on disaggregating the highest TSS values. The head-tails intervals facilitate observing the most likely events with higher concertation or amounts of stools. The symbol histogram counts the times that each color is in the respective map series.
 
