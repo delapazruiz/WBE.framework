@@ -189,19 +189,19 @@ tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() +
             scale.factor=5)+
   tm_layout(main.title.position=c("left","top"),
             main.title=
-              "Early outbreak, March 21, 9-10hrs, 06 min",
+              "Early outbreak, March 21, 9 hrs, 06 min",
             legend.outside.position= "right",
             outer.margins=0,inner.margins=0,between.margin=0)
 ```
 
 
-#### Figure 6.b Mapserie at 11:00
+#### Figure 6.b Mapserie at 10:00
 
 ```{r}
 #| echo: false
 #| label: infected stool EARLY OUTBREAK.b six min res
 #| fig-column: page-right
-#| fig-height: 10
+#| fig-height: 5
 #| fig-width: 9
 #| fig-show: hold
 ##| fig-cap: "D)"
@@ -235,7 +235,7 @@ tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() +
             scale.factor=5)+
   tm_layout(main.title.position=c("left","top"),
             main.title=
-              "Early outbreak, March 21, 11-12hrs, 06 min",
+              "Early outbreak, March 21, 10 hrs, 06 min",
             legend.outside.position= "right",
             outer.margins=0,inner.margins=0,between.margin=0)
 ```
