@@ -25,7 +25,7 @@ blocks_tbl_f = blocks_tbl|>
 
 stool.infected <- manholes.snt.pol|>
   filter(  event.typ =="poo"&
-             date.time <= as.POSIXct("2022-03-21 10:30:00", tz='UTC') &
+             date.time <= as.POSIXct("2022-03-21 09:54:00", tz='UTC') & #
              date.time >= as.POSIXct("2022-03-21 08:55:00", tz='UTC'))|> 
   filter(virus == "Infected"|virus=="Recovered")|>
   mutate(inf.stool=1)
@@ -61,8 +61,8 @@ mholes06m_tbl.stool.earlyoutbreak.a <- inner_join(
 
 stool.infected <- manholes.snt.pol|>
   filter(  event.typ =="poo"&
-             date.time <= as.POSIXct("2022-03-21 12:43:00", tz='UTC') & 
-             date.time >= as.POSIXct("2022-03-21 11:00:00", tz='UTC'))|>
+             date.time <= as.POSIXct("2022-03-21 11:00:00", tz='UTC') & 
+             date.time >= as.POSIXct("2022-03-21 09:53:00", tz='UTC'))|>
   filter(virus == "Infected"|virus=="Recovered")|>
   mutate(inf.stool=1)
 
