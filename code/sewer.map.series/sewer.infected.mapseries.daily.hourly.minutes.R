@@ -6,7 +6,7 @@
 
 mholes_tbl = read_sf("data/manholes.snt.height.shp")
 blocks_tbl = read_sf("data/13m.loc.snt.2020.mz800.wgs84.shp")
-pipes_tbl = read_sf("data/pipes.snt.shp")
+pipes_tbl = read_sf("data/pipes.snt.tbl.shp")
 households_tbl = read_sf("data/households.snt.wgs84.shp")
 
 # Matching ID manholes ---- 
@@ -25,7 +25,7 @@ blocks_tbl_f = blocks_tbl|>
 
 stool.infected <- manholes.snt.pol|>
   filter(  event.typ =="poo"&
-             date.time <= as.POSIXct("2022-03-21 09:54:00", tz='UTC') & #
+             date.time <= as.POSIXct("2022-03-21 11:00:00", tz='UTC') & #09:54:00
              date.time >= as.POSIXct("2022-03-21 08:55:00", tz='UTC'))|> 
   filter(virus == "Infected"|virus=="Recovered")|>
   mutate(inf.stool=1)

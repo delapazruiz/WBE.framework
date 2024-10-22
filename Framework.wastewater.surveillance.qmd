@@ -40,7 +40,7 @@ ver.tim <- 0
 #Import .shp (manholes, blocks) ----
 mholes_tbl = read_sf("data/manholes.snt.height.shp")
 blocks_tbl = read_sf("data/13m.loc.snt.2020.mz800.wgs84.shp")
-pipes_tbl = read_sf("data/pipes.snt.shp")
+pipes_tbl = read_sf("data/pipes.snt.tbl.shp")
 households_tbl = read_sf("data/households.snt.wgs84.shp")
  
 #Load SMS-ABM Netlogo outcomes ----
@@ -163,7 +163,7 @@ Map series at different time ranges with 6 minutes resolution. a) Shows several 
 
 #Mapping infected stool events
 
-tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() + 
+  tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() +
   tm_fill(col = "#f0f0f0")+
   tm_shape(pipes_tbl)+
   tm_lines(col = "#bdbdbd")+
@@ -181,9 +181,9 @@ tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() +
              style="pretty",
              #style.args = list(thr = 0.5),
              palette="PuRd", 
-             border.col = '#bdbdbd') +
+             border.col = '#bdbdbd')+ 
   tm_facets(by = "date.time", ncol=4,
-            free.coords = TRUE,
+            free.coords = FALSE,
             free.scales.symbol.size=FALSE,
             free.scales.symbol.col=FALSE,
             scale.factor=5)+
@@ -192,6 +192,7 @@ tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() +
               "Early outbreak, March 21, 9 hrs, 06 min",
             legend.outside.position= "right",
             outer.margins=0,inner.margins=0,between.margin=0)
+
 ```
 
 
@@ -211,7 +212,7 @@ tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() +
 
 tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() + 
   tm_fill(col = "#f0f0f0")+
-  tm_shape(pipes_tbl)+
+  tm_shape(pipes_tbl)+  
   tm_lines(col = "#bdbdbd")+
   tm_shape(mholes06m_tbl.stool.earlyoutbreak.b) + 
   tm_bubbles(size = 'stool.infected', 
@@ -227,9 +228,9 @@ tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() +
              style="pretty",
              #style.args = list(thr = 0.5),
              palette="PuRd", 
-             border.col = '#bdbdbd') +
+             border.col = '#bdbdbd')+ 
   tm_facets(by = "date.time", ncol=4,
-            free.coords = TRUE,
+            free.coords = FALSE,
             free.scales.symbol.size=FALSE,
             free.scales.symbol.col=FALSE,
             scale.factor=5)+
@@ -277,7 +278,7 @@ tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() +
              palette="PuRd", 
              border.col = '#bdbdbd') +
   tm_facets(by = "date.time", ncol=4,
-            free.coords = TRUE,
+            free.coords = FALSE,
             free.scales.symbol.size=FALSE,
             free.scales.symbol.col=FALSE,
             scale.factor=5)+
@@ -327,7 +328,7 @@ tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() +
              palette="PuRd", 
              border.col = '#bdbdbd') +
   tm_facets(by = "date.time", ncol=4,
-            free.coords = TRUE,
+            free.coords = FALSE,
             free.scales.symbol.size=FALSE,
             free.scales.symbol.col=FALSE,
             scale.factor=5)+
