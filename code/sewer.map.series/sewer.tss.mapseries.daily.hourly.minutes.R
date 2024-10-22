@@ -3,7 +3,7 @@
 
 # Load results ----
 
-pipes_tbl = read_sf("data/pipes.snt.shp")
+pipes_tbl = read_sf("data/pipes.snt.tbl.shp")
 households_tbl = read_sf("data/households.snt.wgs84.shp")
 
 mh.out.12min.snt.tss.df <- read_csv('results/mh.out.12min.snt.df.tss.csv')

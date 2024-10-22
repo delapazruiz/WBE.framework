@@ -45,7 +45,7 @@ households_tbl = read_sf("data/households.snt.wgs84.shp")
  
 #Load SMS-ABM Netlogo outcomes ----
 
-# Requirements for Figures 4,6,7,8,9.
+# Requirements for Figures 4,6(a,b,c),7.
 
 # Epidemic curve patterns
 source("code/dw.daily.infection.records/daily.infection.records.t0.4.mx4.R")
@@ -69,14 +69,14 @@ source("code/dw.daily.infection.records/figure9.timeseries.outbreak.tail.R")
 
 # Section 4. Results
 
-**Objective:** Our results demonstrate the implementation of the framework to support wastewater surveilliance plans by using the DDW (disease and wastewater model ). The DDW model simulates COVID-19 outbreak case study. The model outputs are represented in:
+**Objective:** Our results demonstrate the implementation of the framework to support wastewater surveillance plans by using the DDW (disease and wastewater model ). The DDW model simulates COVID-19 outbreak case study. The model outputs are represented in:
 
-1.  Figure 4. Epidemic curves of the disease spread and infected stool.
-2.  Figure 5. TSS loads map series at maintenance holes.
-3.  Figure 6. Early detection of COVID stool at maintenance holes.
-4.  Figure 7. Peak outbreak of infected stool events at maintenance holes.
-5.  Figure 8. Infected stool events from the population recovering from the outbreak.
-6.  Figure 9. Detection of stool events at the wastewater treatment plant.
+1.  Figure 4.  Epidemic curves of the disease spread and infected stool.
+2.  Figure 5.  TSS loads map series at maintenance holes.
+3.  Figure 6.a Early outbreak detection of COVID at maintenance holes.
+4.  Figure 6.b Peak outbreak detection of COVID at maintenance holes.
+5.  Figure 6.c Outbreak tail detection of COVID at maintenance holes.
+6.  Figure 7.  Time series of stool events at the wastewater treatment plant and mh.
 
 ## 4.1. Modeled disease and wastewater
 
@@ -144,12 +144,12 @@ Go to the end of this document to find the figures.
 
 ## 4.2	Modeled wastewater surveillance
 
-### Figure 6. Early detection of COVID stool at maintenance mholes. 
+### Figure 6. Mapseries outbreak phases.
 
-Map series at different time ranges with 6 minutes resolution. a) Shows several dark purple points representing a clear presence of COVID stool events. b) Show a different time range where a) demonstrates to have more infected stool events than the time range from b). The rectangular area of the map series is adjusted based on the presence of points.
+#### 6.a) Early Outbreak. 
 
+Map series at different time ranges with 6 minutes resolution (09:00 to 11:00). The figure Shows several dark purple points representing a clear presence of COVID stool events. The time range demonstrates to have more infected stool events at 09:00 hours compared to 10:00 hours.
 
-#### Figure 6.a Mapserie at 09:00
 
 ```{r}
 #| echo: false
@@ -189,59 +189,15 @@ Map series at different time ranges with 6 minutes resolution. a) Shows several 
             scale.factor=5)+
   tm_layout(main.title.position=c("left","top"),
             main.title=
-              "Early outbreak, March 21, 9 hrs, 06 min",
+              "Early outbreak, March 21, 06 min",
             legend.outside.position= "right",
             outer.margins=0,inner.margins=0,between.margin=0)
 
 ```
 
 
-#### Figure 6.b Mapserie at 10:00
 
-```{r}
-#| echo: false
-#| label: infected stool EARLY OUTBREAK.b six min res
-#| fig-column: page-right
-#| fig-height: 5
-#| fig-width: 9
-#| fig-show: hold
-##| fig-cap: "D)"
-#| cap-location: margin
-
-#Mapping infected stool events
-
-tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() + 
-  tm_fill(col = "#f0f0f0")+
-  tm_shape(pipes_tbl)+  
-  tm_lines(col = "#bdbdbd")+
-  tm_shape(mholes06m_tbl.stool.earlyoutbreak.b) + 
-  tm_bubbles(size = 'stool.infected', 
-             col= 'stool.infected',
-             title.size= "Infected Stool(event)",
-             legend.size.show=FALSE,
-             legend.hist= TRUE,
-             legend.hist.title = 
-               "Histogram",
-             title.col= "Infected wastewater particles",
-             legend.col.is.portrait=TRUE,
-             #size.lim= c(1200,4000),
-             style="pretty",
-             #style.args = list(thr = 0.5),
-             palette="PuRd", 
-             border.col = '#bdbdbd')+ 
-  tm_facets(by = "date.time", ncol=4,
-            free.coords = FALSE,
-            free.scales.symbol.size=FALSE,
-            free.scales.symbol.col=FALSE,
-            scale.factor=5)+
-  tm_layout(main.title.position=c("left","top"),
-            main.title=
-              "Early outbreak, March 21, 10 hrs, 06 min",
-            legend.outside.position= "right",
-            outer.margins=0,inner.margins=0,between.margin=0)
-```
-
-### Figure 7. Outbreak Peak. 
+#### 6.b) Outbreak Peak. 
 
 Map series with 6 minutes resolution showing a substantial increase in the number of infected stools at the outbreak peak.
 
@@ -291,7 +247,7 @@ tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() +
 
 
 
-### Figure 8. Outbreak Tail. Infected stool events from the population recovering from the outbreak. 
+#### 6.c) Outbreak Tail.
 
 Map series with 6 minutes resolution showing that even after the population is recovered, a substantial number of infected stools is still being produced.
 
@@ -340,7 +296,7 @@ tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() +
 ```
 
 
-### Figure 9. Surveillance: Mh.258+WWTP
+### Figure 7. Surveillance: Mh.258+WWTP
 
 Represent a simulated wastewater surveillance sampling of infected stool events at the treatment plant and maintinance hole.
 
@@ -505,7 +461,7 @@ tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() +
           palette="YlOrBr", 
           border.col = '#bdbdbd') +
   tm_facets(by = "date.time", ncol=5,
-            free.coords = TRUE,
+            free.coords = FALSE,
             free.scales.symbol.size=FALSE,
             free.scales.symbol.col=FALSE,
             scale.factor=5)+
@@ -538,7 +494,7 @@ tm_shape(blocks_tbl_f['wwtp.conex']) + #tm_polygons() +
           palette="Oranges", 
           border.col = '#bdbdbd') +
   tm_facets(by = "date.time", ncol=5,
-            free.coords = TRUE,
+            free.coords = FALSE,
             free.scales.symbol.size=FALSE,
             free.scales.symbol.col=FALSE,
             scale.factor=5)+
