@@ -1,6 +1,6 @@
 ---
-title: "Reproducible results. Framework for wastewater-based epidemiology"
-subtitle: "Integrating modeling for Wastewater Surveillance"
+title: "Reproducible results. Wastewater-based epidemiology framework:"
+subtitle: "Collaborative modeling for sustainable disease surveillance"
 author: "*Néstor DelaPaz-Ruíz, Ellen-Wien Augustijn, Mahdi Farnaghi, Shaheen A. Abdulkareem, Raul Zurita-Milla*"
 abstract: "This quarto file documents the results of the mentioned research manuscript following open science and sustainalbe software practices"
 date: "2024-09-12"

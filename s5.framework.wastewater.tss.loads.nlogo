@@ -2170,7 +2170,7 @@ TEXTBOX
 10
 1220
 101
-Framework for wastewater-based epidemiology: \nIntegrating modeling for Wastewater Surveillance (TSS loads)\n
+Wastewater-based epidemiology framework: \nCollaborative modeling for sustainable disease surveillance (TSS loads)\n
 19
 0.0
 1

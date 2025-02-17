@@ -2170,7 +2170,7 @@ TEXTBOX
 10
 1220
 101
-Framework for wastewater-based epidemiology: \nIntegrating modeling for Wastewater Surveillance\n
+Wastewater-based epidemiology framework: \nCollaborative modeling for sustainable disease surveillance\n
 19
 0.0
 1

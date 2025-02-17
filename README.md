@@ -1,10 +1,10 @@
 
 
-**Framework for wastewater-based epidemiology:** 
-*Integrating modeling for Wastewater Surveillance* 
+**Reproducible results. Wastewater-based epidemiology framework:** 
+*Collaborative modeling for sustainable disease surveillance* 
 ================
 
-Pre-print: (Add zenodo DOI)
+Science of the Total Environment: (Add DOI)
 
 Repository: (Add zenodo DOI)
 
@@ -14,7 +14,7 @@ Affiliation: Department of Geo-Information Process (GIP), Faculty of Geo-Informa
 
 ## About
 
-This repository provides access to the materials (code-data), software-environments (NetLogo, Rstudio, Docker containers), and the steps for reproducing the results from the publication: *Framework for wastewater-based epidemiology: Integrating modeling for Wastewater Surveillance*.
+This repository provides access to the materials (code-data), software-environments (NetLogo, Rstudio, Docker containers), and the steps for reproducing the results from the publication: *Wastewater-based epidemiology framework: Collaborative modeling for sustainable disease surveillance*.
 
 The information below guides you to execute two NetLogo simulations. The main outputs are the figures representing the results of the mentioned publication.
 
