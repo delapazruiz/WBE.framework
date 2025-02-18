@@ -6,7 +6,7 @@
 
 Science of the Total Environment: (Add DOI)
 
-Repository: (Add zenodo DOI)
+Repository: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14883768.svg)](https://doi.org/10.5281/zenodo.14883768)
 
 Néstor DelaPaz-Ruíz, Ellen-Wien Augustijn, Mahdi Farnaghi, Shaheen A. Abdulkareem, Raul Zurita-Milla. September, 2024
 
