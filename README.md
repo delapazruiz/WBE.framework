@@ -4,7 +4,7 @@
 *Collaborative modeling for sustainable disease surveillance* 
 ================
 
-Science of the Total Environment: (Add DOI)
+Journal article: <https://doi.org/10.1016/j.scitotenv.2025.178889>
 
 Repository: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14883768.svg)](https://doi.org/10.5281/zenodo.14883768)
 
