@@ -32,8 +32,6 @@ Logical processors: 12
 Installed RAM   32.0 GB (31.6 GB usable)
 System type 64-bit operating system, x64-based processor
 
-Docker Desktop v.4.16.3
-
 R version 4.3.1 (2023-06-16 ucrt)
 RStudio 2023.12.1
 
@@ -62,7 +60,7 @@ Quick reproducibility (requires NetLogo/Rstudio experience):
 
 ## Quick reproducibility
 
-This section is for Windows users familiar with NetLogo, Rstudio, and Git bash. Mac or Linux users can also try to reproduce results. Jump to the long-term reproducibility (usage) section, which uses Docker to reproduce results as the alternative for non-experienced users.
+This section is for Windows users familiar with NetLogo, Rstudio, and Git bash. Mac or Linux users should not try to reproduce results. Jump to the long-term reproducibility section, which uses Docker to reproduce results as the alternative for non-experienced users.
 
 Steps for a quick reproduction:
 
@@ -124,6 +122,104 @@ renv::restore()
 
 ``` bash
 Framework.wastewater.surveillance.qmd
+```
+
+## Long-term reproducibility (Docker-Rstudio)
+
+### Pre-requirements
+
+Used computational environment:
+
+```         
+Platform: x86_64-w64-mingw32/x64 (64-bit) 
+Running under: Windows 11 x64 (build 22631)
+Processor:  Intel(R) Core(TM) i7-10750H CPU @ 2.60GHz   2.59 GHz
+Logical processors: 12 
+Installed RAM   32.0 GB (31.6 GB usable)
+System type 64-bit operating system, x64-based processor
+
+NetLogo 6.3
+
+Docker Desktop v.4.16.3
+```
+
+Data:
+
+```         
+You are expected to download this repo and run the NetLogo simulations:
+
+s4.framework.wastewater.surveillance.nlogo (around 30 min)
+s5.framework.wastewater.tss.loads.nlogo (around 30 min)
+```
+
+### Steps: Docker-Rstudio
+
+Follow the next steps after you get the NetLogo .csv output files. Experience with docker is expected.
+
+1.  Verify that you are in the folder 'ddw.framework'. In git bash, execute:
+
+``` bash
+docker run -p 8787:8787 -e ROOT=TRUE -e PASSWORD=123 rocker/geospatial:4.3.1
+```
+
+2. Open a web browser using the link below and sign in with the defined password:
+
+``` bash
+http://localhost:8787/
+```
+
+3. Create a zip file of the folder:
+
+``` bash
+ddw.framework
+```
+
+4. In Rstudio, upload the following file (look for the yellow-up-arrow icon in the panel to navigate through files):
+
+``` bash
+ddw.framework.zip
+```
+
+5. In Rstudio, from the 'ddw.framework' folder, open the R project.
+
+``` bash
+ddw.framework.Rproj
+```
+
+6. In the R console, execute:
+
+``` bash
+renv::status()
+```
+
+7. Install the 'yaml' package if you get a warning message for its installation: 
+
+``` bash
+install.packages("yaml")
+```
+
+8. Execute and type "y"" when required to download and install the required packages (10-15 min):
+
+``` bash
+renv::restore()
+```
+
+9. Execute the following function to verify that you get 'No issues found'.
+
+``` bash
+renv::status()
+```
+
+10. Open the following quarto notebook file and press the "Render" icon (if required, accept the installation of packages):
+
+``` bash
+Framework.wastewater.surveillance.qmd
+```
+
+11. A new browser should open, or in the files directory, look for the following html:
+
+``` bash
+Framework.wastewater.surveillance.html
 ```
 
 ## Support
