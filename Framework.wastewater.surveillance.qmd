@@ -434,7 +434,7 @@ Simulated events at the locality level from 25 simulations.
 #Requirements for TSS, Figure 5.
 
 #Load/pre-processing daily sewer map series
-source("code/sewer.map.series/sewer.tss.load.dw.mapseries.R")
+source("code/sewer.map.series/sewer.tss.load.dw.mapseries.r")
 
 #Sewer (TSS) maps series daily, hourly, minutes variability
 source("code/sewer.map.series/sewer.tss.mapseries.daily.hourly.minutes.R")
